@@ -2,12 +2,10 @@ package com.example.mynavigation.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -19,7 +17,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -43,14 +40,14 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun MyNavigationTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,//isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-
 
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -66,7 +63,7 @@ fun MyNavigationTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = Color.Black.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =  !darkTheme
+//            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =  darkTheme
         }
     }
 
