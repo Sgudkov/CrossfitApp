@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.MyNavigation" parent="android:Theme.Material.Light.NoActionBar">
-    <item name="android:statusBarColor">
-        @android:color/transparent
-    </item>
+<!--    <style name="Theme.MyNavigation" parent="android:Theme.Material.Light.NoActionBar">-->
+    <style name="MyTheme" parent="Theme.AppCompat.DayNight">
+<!--        <item name="colorPrimary">@color/md_theme_dark_primary</item>-->
+<!--        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>-->
+<!--        <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>-->
+<!--        <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>-->
+<!--        <item name="colorError">@color/md_theme_dark_error</item>-->
+<!--        <item name="colorOnError">@color/md_theme_dark_onError</item>-->
+<!--        <item name="colorErrorContainer">@color/md_theme_dark_errorContainer</item>-->
+<!--        <item name="colorOnErrorContainer">@color/md_theme_dark_onErrorContainer</item>-->
+<!--        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>-->
+<!--        <item name="colorSurface">@color/md_theme_dark_surface</item>-->
+<!--        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>-->
     </style>
 
 </resources>
