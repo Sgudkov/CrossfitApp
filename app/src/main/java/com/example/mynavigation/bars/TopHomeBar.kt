@@ -17,12 +17,8 @@ import java.util.Locale
 
 
 @Composable
-fun TopBar() {
+fun TopHomeBar() {
     val dialogState = rememberMaterialDialogState()
-
-//    if (GlobalData.getDate().){
-//        GlobalData.setDate(LocalDate.now().toString())
-//    }
 
     val myLocale = Locale("ru", "RU")
     MaterialDialog(
@@ -35,6 +31,7 @@ fun TopBar() {
     ) {
 
         datepicker(
+            initialDate = GlobalData.getDate(),
             locale = myLocale,
             title = "Дата тренировки",
             colors = DatePickerDefaults.colors(

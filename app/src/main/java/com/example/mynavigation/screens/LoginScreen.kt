@@ -81,12 +81,12 @@ fun LoginScreen() {
     ) {
 
         TextField(
-            label = { Text(text = "Email") },
+            label = { Text(text = "Эл.Почта") },
             value = email,
             onValueChange = { email = it }
         )
         TextField(
-            label = { Text(text = "Password") },
+            label = { Text(text = "Пароль") },
             value = password,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -171,7 +171,7 @@ fun LoginScreen() {
                         .height(50.dp)
                         .padding(top = 10.dp)
                 ) {
-                    Text(text = "Register")
+                    Text(text = "Регистрация")
                 }
                 Button(
                     onClick = {
@@ -206,14 +206,14 @@ fun LoginScreen() {
                         .height(50.dp)
                         .padding(top = 10.dp)
                 ) {
-                    Text(text = "Login")
+                    Text(text = "Вход")
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
         ClickableText(
-            text = AnnotatedString("Forgot password?"),
+            text = AnnotatedString("Забыли пароль?"),
             onClick = {
                 val pref = preferencesManager.getData(email, "")
                 showState("Password = $pref", context)

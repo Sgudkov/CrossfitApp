@@ -1,18 +1,20 @@
 package com.example.mynavigation.screens
 
+import android.widget.Space
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -24,82 +26,104 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mynavigation.GlobalData
-import com.example.mynavigation.bars.TopBar
+import com.example.mynavigation.R
+import com.example.mynavigation.bars.TopHomeBar
 
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
 
+    val listExercises = GlobalData.getExercise()[GlobalData.getDate()]
+
     Scaffold(
-        topBar = { TopBar() }
+        topBar = { TopHomeBar() }
     ) { contentPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
+                .fillMaxHeight()
                 .padding(contentPadding)
                 .background(Color.Black)
                 .wrapContentSize(Alignment.Center)
         ) {
-            items(1) {
-                GlobalData.getExercise()[GlobalData.getDate()]?.forEach { entry ->
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(Color(0xFFffffff)),
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .padding(start = 20.dp, end = 20.dp)
-                            .fillMaxHeight()
-                        //                        .height(120.dp)
+
+            if (listExercises == null) {
+                Text(
+                    text = "На выбранную дату нет записей",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                return@Scaffold
+            }
+
+            listExercises.forEach { entry ->
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(Color(0xFFffffff)),
+                    modifier = Modifier
+//                        .padding(10.dp)
+                        .weight(1f)
+                        .padding(start = 20.dp, end = 20.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .align(alignment = Alignment.CenterVertically)
                         ) {
-                            Column(
+                            Image(
+                                painter = painterResource(id = R.drawable.taskicon),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .padding(20.dp)
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(),
-                                verticalArrangement = Arrangement.SpaceAround
+                                    .size(100.dp)
+                                    .align(alignment = Alignment.Center)
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(2f),
+                            verticalArrangement = Arrangement.SpaceAround,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = entry.key,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color.Black,
+                                modifier = Modifier
+                            )
+                            Button(
+                                modifier = Modifier
+                                    .align(alignment = Alignment.End)
+                                    .padding(end = 2.dp),
+                                onClick = {
+                                    val task = entry.key
+                                    navController.navigate(route = "home/$task")
+                                },
+                                colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
+                                border = BorderStroke(0.5.dp, Color(0xFF000000)),
                             ) {
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceAround
-                                ) {
-                                    Text(
-                                        text = entry.key,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black
-                                    )
-                                    //                                    Text(
-                                    //                                        text = entry.value,
-                                    //                                        color = Color.Black
-                                    //                                    )
-                                }
-
-                                Button(
-                                    onClick = {
-                                        val task = entry.key
-                                        navController.navigate(route = "home/$task")
-                                    },
-                                    colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
-                                    border = BorderStroke(0.5.dp, Color(0xFF000000)),
-                                    modifier = Modifier
-                                        .align(alignment = Alignment.End)
-                                    //                                .padding(end = 5.dp)
-                                ) {
-                                    Text(text = "Записать результат", color = Color(0xFFffffff))
-                                }
+                                Text(
+                                    text = "Записать результат",
+                                    color = Color(0xFFffffff)
+                                )
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
-
                 }
+                Spacer(modifier = Modifier.size(30.dp))
             }
         }
     }
