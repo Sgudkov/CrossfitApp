@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -102,6 +103,7 @@ fun LoginScreen() {
         ) {
             RadioButton(
                 selected = radioButton,
+                colors = RadioButtonDefaults.colors( Color(0xFFea7501)),
                 onClick = {
                     radioButton = true
                     GlobalData.setAthlete(true)
@@ -115,6 +117,7 @@ fun LoginScreen() {
             )
             RadioButton(
                 selected = !radioButton,
+                colors = RadioButtonDefaults.colors( Color(0xFFea7501)),
                 onClick = {
                     radioButton = false
                     GlobalData.setAthlete(false)

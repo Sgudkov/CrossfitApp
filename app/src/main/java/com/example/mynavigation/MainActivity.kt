@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background,
+                    color = MaterialTheme.colors.onBackground,
 //                    color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen()
