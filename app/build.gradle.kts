@@ -84,6 +84,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.3.0")
     implementation("com.android.tools:desugar_jdk_libs:1.0.9")
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.1")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
 
 

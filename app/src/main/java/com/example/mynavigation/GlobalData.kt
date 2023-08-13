@@ -152,6 +152,5 @@ fun showState(message: String, context: android.content.Context) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
-
 var GlobalData = GlobalDataView()
 var UserAuth = UserAuthView()
