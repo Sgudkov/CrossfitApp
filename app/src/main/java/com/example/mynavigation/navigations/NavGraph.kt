@@ -37,9 +37,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(
             route = Screens.Card.route,
-            arguments = listOf(navArgument("task") { defaultValue = "" })
+            arguments = listOf(navArgument("task") { defaultValue = 0 })
         ) {
-            it.arguments?.getString("task")?.let { it1 -> CardViewer(navController, it1) }
+            it.arguments?.getInt("task")?.let { it1 -> CardViewer(navController, it1) }
         }
 
     }

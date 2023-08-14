@@ -2,10 +2,15 @@ package com.example.mynavigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -22,13 +27,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mynavigation.bars.TopBarCard
 
 
 @Composable
-fun CardViewer(navController: NavHostController, cardName: String = "") {
+fun CardViewer(navController: NavHostController, cardName: Int) {
 
     val lines by remember {
         mutableStateOf(
@@ -42,39 +48,47 @@ fun CardViewer(navController: NavHostController, cardName: String = "") {
     Scaffold(
         topBar = { lines?.let { TopBarCard(cardName, it, navController) } }
     ) { contentPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
                 .background(Color.Black)
+                .verticalScroll(rememberScrollState())
                 .wrapContentSize(Alignment.Center)
-                .clickable { focusManager.clearFocus() }
+                .clickable { focusManager.clearFocus() },
+                horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(1) {
+//            items(1) {
                 lines?.forEach { (key, message) ->
                     var msg by rememberSaveable { mutableStateOf("") }
                     if (msg.isEmpty()) msg = message
-                    Text(
-                        text = key,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        style = TextStyle(fontSize = 30.sp)
-                    )
-                    TextField(
-                        value = msg,
-                        onValueChange = {
-                            msg = it
-                            lines!![key] = msg
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text(
+                            text = key,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            style = TextStyle(fontSize = 18.sp)
+                        )
+                        TextField(
+                            singleLine = true,
+                            value = msg,
+                            onValueChange = {
+                                msg = it
+                                lines!![key] = msg
 
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            textColor = Color.Black,
-                            backgroundColor = Color.White
-                        ),
-                        textStyle = TextStyle(fontSize = 18.sp),
-                    )
+                            },
+                            colors = TextFieldDefaults.textFieldColors(
+                                textColor = Color.Black,
+                                backgroundColor = Color.White
+                            ),
+                            textStyle = TextStyle(fontSize = 18.sp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(30.dp))
                 }
-            }
+//            }
         }
 
     }

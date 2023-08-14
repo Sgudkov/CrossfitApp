@@ -23,7 +23,7 @@ import com.example.mynavigation.showState
 
 @Composable
 fun TopBarCard(
-    cardName: String,
+    cardName: Int,
     val1: MutableMap<String, String>,
     navController: NavHostController
 ) {
@@ -53,7 +53,7 @@ fun TopBarCard(
                         color = Color.White
                     )
                     Text(
-                        text = cardName,
+                        text = "Задание $cardName",
                         color = Color.White
                     )
                 }

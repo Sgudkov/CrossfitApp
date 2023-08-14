@@ -13,7 +13,7 @@ data class DataModel(
     var athlet: Boolean = false, var selectedDate: LocalDate = LocalDate.now(),
 //    var exerciseMap: MutableMap<String, MutableList<String>> = mutableMapOf()
     //Date ->[taskName,[taskDescription, taskComment]]
-    var exerciseMap: MutableMap<LocalDate, MutableMap<String, MutableMap<String, String>>> = mutableMapOf()
+    var exerciseMap: MutableMap<LocalDate, MutableMap<Int, MutableMap<String, String>>> = mutableMapOf()
 )
 
 class GlobalDataView : ViewModel() {
@@ -36,27 +36,27 @@ class GlobalDataView : ViewModel() {
         return globalData.selectedDate
     }
 
-    fun setExercise(key: LocalDate, value: MutableMap<String, MutableMap<String, String>>) {
+    fun setExercise(key: LocalDate, value: MutableMap<Int, MutableMap<String, String>>) {
         if (value.isEmpty()) return
         val newExerciseMap = getExercise()
         newExerciseMap[key] = value
         globalData = globalData.copy(exerciseMap = newExerciseMap)
     }
 
-    fun setTask(key: String, value: MutableMap<String, String>) {
+    fun setTask(key: Int, value: MutableMap<String, String>) {
         val newExerciseMap = getExercise()
         newExerciseMap[globalData.selectedDate]?.set(key, value)
         globalData = globalData.copy(exerciseMap = newExerciseMap)
     }
 
-    fun getExercise(): MutableMap<LocalDate, MutableMap<String, MutableMap<String, String>>> {
+    fun getExercise(): MutableMap<LocalDate, MutableMap<Int, MutableMap<String, String>>> {
         return globalData.exerciseMap
     }
 
     fun initializeData() {
         if (initializeCalled) return
         initializeCalled = true
-        val newTask: MutableMap<String, MutableMap<String, String>> = mutableMapOf()
+        val newTask: MutableMap<Int, MutableMap<String, String>> = mutableMapOf()
         val taskDescription: MutableMap<String, String> = mutableMapOf()
         val localDate = LocalDate.now()
 
@@ -67,7 +67,7 @@ class GlobalDataView : ViewModel() {
         taskDescription["10 Burpee Box Jump Over"] = ""
         taskDescription["9/7 Calorie Row"] = ""
 
-        newTask["Задание 1"] = taskDescription
+        newTask[1] = taskDescription
 
         GlobalData.setExercise(key = localDate, value = newTask)
 
@@ -86,7 +86,7 @@ class GlobalDataView : ViewModel() {
         taskDescription2["Ladders "] = ""
         taskDescription2["American Kettlebell Swings (50/35 lb)"] = ""
 
-        newTask["Задание 2"] = taskDescription2
+        newTask[2] = taskDescription2
 
         GlobalData.setExercise(key = localDate, value = newTask)
 
@@ -102,7 +102,7 @@ class GlobalDataView : ViewModel() {
         taskDescription3["Ladders "] = ""
         taskDescription3["American Kettlebell Swings  50/35 lb "] = ""
 
-        newTask["Задание 3"] = taskDescription3
+        newTask[3] = taskDescription3
 
         GlobalData.setExercise(key = localDate, value = newTask)
 
@@ -115,9 +115,37 @@ class GlobalDataView : ViewModel() {
         taskDescription4["Ladders "] = ""
         taskDescription4["American Kettlebell Swings  50/35 lb "] = ""
 
-        newTask["Задание 4"] = taskDescription4
+        newTask[4] = taskDescription4
 
         GlobalData.setExercise(key = localDate, value = newTask)
+
+        val taskDescription5: MutableMap<String, String> = mutableMapOf()
+
+        taskDescription5["For Total Reps in 24 minutes and 30 seconds"] = ""
+        taskDescription5["Complete each movement for 40 seconds, then 20 seconds rest:"] = ""
+        taskDescription5["Battle Ropes"] = ""
+        taskDescription5["Sled Push  3x25 lb, 2x25 lb "] = ""
+        taskDescription5["Ladders "] = ""
+        taskDescription5["American Kettlebell Swings  50/35 lb "] = ""
+
+        newTask[5] = taskDescription5
+
+        GlobalData.setExercise(key = localDate, value = newTask)
+
+        val taskDescription6: MutableMap<String, String> = mutableMapOf()
+
+        taskDescription6["For Total Reps in 24 minutes and 30 seconds"] = ""
+        taskDescription6["Complete each movement for 40 seconds, then 20 seconds rest:"] = ""
+        taskDescription6["Battle Ropes"] = ""
+        taskDescription6["Sled Push  3x25 lb, 2x25 lb "] = ""
+        taskDescription6["Ladders "] = ""
+        taskDescription6["American Kettlebell Swings  50/35 lb "] = ""
+
+        newTask[6] = taskDescription6
+
+        GlobalData.setExercise(key = localDate, value = newTask)
+
+
     }
 }
 

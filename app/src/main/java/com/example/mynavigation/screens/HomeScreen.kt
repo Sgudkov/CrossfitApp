@@ -1,9 +1,9 @@
 package com.example.mynavigation.screens
 
-import android.widget.Space
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,11 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -48,8 +49,8 @@ fun HomeScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .fillMaxHeight()
                 .padding(contentPadding)
+                .verticalScroll(rememberScrollState())
                 .background(Color.Black)
                 .wrapContentSize(Alignment.Center)
         ) {
@@ -65,60 +66,72 @@ fun HomeScreen(navController: NavHostController) {
             }
 
             listExercises.forEach { entry ->
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(Color(0xFFffffff)),
+                Row(
                     modifier = Modifier
-//                        .padding(10.dp)
-                        .weight(1f)
-                        .padding(start = 20.dp, end = 20.dp)
+                        .fillMaxHeight(),
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
+                    Card(
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(Color(0xFFffffff)),
+                        modifier = Modifier
+//                        .padding(10.dp)
+//                        .weight(1f)
+                            .padding(start = 20.dp, end = 20.dp)
                     ) {
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .align(alignment = Alignment.CenterVertically)
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.taskicon),
-                                contentDescription = "",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .align(alignment = Alignment.Center)
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .weight(2f),
-                            verticalArrangement = Arrangement.SpaceAround,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = entry.key,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = Color.Black,
-                                modifier = Modifier
-                            )
-                            Button(
-                                modifier = Modifier
-                                    .align(alignment = Alignment.End)
-                                    .padding(end = 2.dp),
-                                onClick = {
-                                    val task = entry.key
-                                    navController.navigate(route = "home/$task")
-                                },
-                                colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
-                                border = BorderStroke(0.5.dp, Color(0xFF000000)),
-                            ) {
-                                Text(
-                                    text = "Записать результат",
-                                    color = Color(0xFFffffff)
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.TopCenter
+                            ){
+                                Image(
+                                    painter = painterResource(id = R.drawable.taskicon),
+                                    contentDescription = "",
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .padding(top = 10.dp)
+                                        .size(80.dp)
                                 )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(2f)
+                                    .fillMaxSize()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    verticalArrangement = Arrangement.SpaceAround,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    val txt = entry.key
+                                    Text(
+                                        text = "Задание $txt",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp,
+                                        color = Color.Black,
+                                        modifier = Modifier
+                                            .padding(bottom = 20.dp)
+                                            .align(alignment = Alignment.Start)
+                                    )
+                                    Button(
+                                        modifier = Modifier
+                                            .align(alignment = Alignment.End)
+                                            .padding(end = 2.dp),
+                                        onClick = {
+                                            val task = entry.key
+                                            navController.navigate(route = "home/$task")
+                                        },
+                                        colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
+                                        border = BorderStroke(0.5.dp, Color(0xFF000000)),
+                                    ) {
+                                        Text(
+                                            text = "Записать результат",
+                                            color = Color(0xFFffffff)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
