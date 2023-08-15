@@ -76,7 +76,7 @@ fun LoginScreen() {
         modifier = Modifier
             .fillMaxSize()
             .clickable { focusManager.clearFocus() }
-            .background(Color.Black),
+            .background(Color(0xFF303233)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

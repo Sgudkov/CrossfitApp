@@ -47,7 +47,7 @@ fun TopHomeBar() {
 
     TopAppBar(
         title = { Text(text = GlobalData.getDate().toString(), color = Color.White) },
-        backgroundColor = Color(0xFF000000),
+        backgroundColor = Color(0xFF303233),
         actions = {
             IconButton(
                 onClick = {

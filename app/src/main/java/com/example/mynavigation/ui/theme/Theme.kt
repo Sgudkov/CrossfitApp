@@ -62,7 +62,7 @@ fun MyNavigationTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color.Black.toArgb()
+            window.statusBarColor = Color(0xFF303233).toArgb()
 //            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =  darkTheme
         }
     }
