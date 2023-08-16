@@ -1,7 +1,9 @@
 package com.example.mynavigation.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
@@ -28,11 +32,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mynavigation.GlobalData
 import com.example.mynavigation.R
+import com.example.mynavigation.UserAuth
 import com.example.mynavigation.bars.TopHomeBar
 
 
@@ -51,6 +57,40 @@ fun HomeScreen(navController: NavHostController) {
                 .background(Color(0xFF303233))
                 .wrapContentSize(Alignment.Center)
         ) {
+
+            if (!UserAuth.isAuthorization()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth() ,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Зарегистрируйтесь, для просмотра тренировок",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Button(
+                            onClick = {
+                                navController.navigate(route = "login")
+                            },
+                            colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
+                            shape = RoundedCornerShape(20.dp),
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                        ) {
+                            androidx.compose.material.Text(
+                                text = "Перейти на экран регистрации",
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+                return@Scaffold
+            }
 
             if (listExercises == null) {
                 Text(
@@ -72,7 +112,7 @@ fun HomeScreen(navController: NavHostController) {
 //                        .weight(1f)
                         .fillMaxWidth()
                         .height(150.dp)
-                        .padding(start = 40.dp, top=10.dp, end = 40.dp)
+                        .padding(start = 40.dp, top = 10.dp, end = 40.dp)
                 ) {
                     Row(
                         modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
