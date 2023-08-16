@@ -11,4 +11,5 @@ open class NavigationItem(var route: String, var icon: ImageVector, var title: S
     object Home : NavigationItem(Screens.Home.route, Icons.Filled.Home, "home")
     object Login : NavigationItem(Screens.Login.route, Icons.Filled.AccountBox, "login")
     object Detail : NavigationItem(Screens.Detail.route, Icons.Filled.Build, "detail")
+    object Profile : NavigationItem(Screens.Profile.route, Icons.Filled.Build, "profile")
 }

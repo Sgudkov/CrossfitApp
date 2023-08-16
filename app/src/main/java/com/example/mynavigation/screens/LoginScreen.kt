@@ -17,13 +17,13 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,11 +67,8 @@ fun LoginScreen(navController: NavHostController) {
 
     body["password"] = ""
 
-//    showState("Call after register", context)
-
     if (UserAuth.isAuthorization()) {
-        ProfileScreen()
-//        navController.navigate(route = "profile")
+        ProfileScreen(navController, true)
         return
     }
 
@@ -185,7 +182,6 @@ fun LoginScreen(navController: NavHostController) {
 
                         preferencesManager.saveData(email, password)
                         data.value = password
-
 
                     },
                     colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),

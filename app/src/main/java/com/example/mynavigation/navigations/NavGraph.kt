@@ -38,6 +38,13 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(
+            route = Screens.Profile.route,
+            arguments = listOf(navArgument("profile") {defaultValue = false})
+        ) {
+            it.arguments?.let { it1 -> ProfileScreen(navController, it1.getBoolean("profile")) }
+        }
+
+        composable(
             route = Screens.Card.route,
             arguments = listOf(navArgument("task") { defaultValue = 0 })
         ) {

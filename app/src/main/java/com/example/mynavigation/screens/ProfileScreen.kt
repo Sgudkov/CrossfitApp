@@ -35,11 +35,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.mynavigation.R
 
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavHostController, profile: Boolean) {
 
     var name by rememberSaveable { mutableStateOf("") }
     var phone by rememberSaveable { mutableStateOf("") }
