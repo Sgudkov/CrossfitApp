@@ -17,12 +17,13 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,15 +85,31 @@ fun LoginScreen() {
         TextField(
             label = { Text(text = "Эл.Почта") },
             value = email,
-            onValueChange = { email = it }
+            onValueChange = { email = it },
+            shape = RoundedCornerShape(20.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.White,
+                unfocusedIndicatorColor= Color.Transparent
+            )
         )
+        Spacer(modifier = Modifier.height(20.dp))
         TextField(
             label = { Text(text = "Пароль") },
             value = password,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            onValueChange = { password = it })
-        Spacer(modifier = Modifier.height(20.dp))
+            onValueChange = { password = it },
+            shape = RoundedCornerShape(20.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.White,
+                unfocusedIndicatorColor= Color.Transparent
+            )
+            )
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             Modifier

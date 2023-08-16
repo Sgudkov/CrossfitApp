@@ -99,6 +99,7 @@ fun CardViewer(navController: NavHostController, cardName: Int) {
                                     backgroundColor = Color.White,
                                     focusedIndicatorColor = Color.Transparent,
                                     cursorColor = Color.Black,
+                                    unfocusedIndicatorColor= Color.Transparent
                                 ),
                                 textStyle = TextStyle(fontSize = 18.sp),
                             )
