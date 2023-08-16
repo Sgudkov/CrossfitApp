@@ -39,6 +39,11 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+        dataBinding = true
+    }
+    dataBinding{
+        enable = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -51,6 +56,7 @@ android {
 }
 
 dependencies {
+    val camerax_version = "1.2.2"
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -85,6 +91,16 @@ dependencies {
     implementation("com.android.tools:desugar_jdk_libs:1.0.9")
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+
+    implementation ("androidx.camera:camera-core:${camerax_version}")
+    implementation ("androidx.camera:camera-camera2:${camerax_version}")
+    implementation ("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation ("androidx.camera:camera-video:${camerax_version}")
+    implementation ("androidx.camera:camera-view:${camerax_version}")
+    implementation ("androidx.camera:camera-extensions:${camerax_version}")
+
+    implementation ("com.google.accompanist:accompanist-permissions:0.33.0-alpha")
+
 
 
 

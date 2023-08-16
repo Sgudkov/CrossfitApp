@@ -39,7 +39,6 @@ fun TopHomeBar() {
                 dateActiveBackgroundColor = Color(0xFFea7501)
             )
         ) { date ->
-            // TODO: change date format
             GlobalData.setDate(date)
         }
 

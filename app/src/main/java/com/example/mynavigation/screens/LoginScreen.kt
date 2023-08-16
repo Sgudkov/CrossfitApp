@@ -2,7 +2,9 @@ package com.example.mynavigation.screens
 
 import android.app.Activity
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +19,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
@@ -43,6 +46,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.mynavigation.EmailDigits
 import com.example.mynavigation.GlobalData
 import com.example.mynavigation.MarsApi
 import com.example.mynavigation.PreferencesManager
@@ -64,8 +68,12 @@ fun LoginScreen(navController: NavHostController) {
     val body by remember { mutableStateOf(mutableMapOf("email" to "")) }
     val preferencesManager = remember { PreferencesManager(context) }
     val data = remember { mutableStateOf(preferencesManager.getData(" ", "")) }
+    var openNumbers by remember { mutableStateOf(false) }
+
+
 
     body["password"] = ""
+
 
     if (UserAuth.isAuthorization()) {
         ProfileScreen(navController, true)
@@ -90,7 +98,7 @@ fun LoginScreen(navController: NavHostController) {
                 textColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 cursorColor = Color.White,
-                unfocusedIndicatorColor= Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent
             )
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -105,9 +113,9 @@ fun LoginScreen(navController: NavHostController) {
                 textColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 cursorColor = Color.White,
-                unfocusedIndicatorColor= Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent
             )
-            )
+        )
         Spacer(modifier = Modifier.height(10.dp))
 
         Row(
@@ -119,7 +127,7 @@ fun LoginScreen(navController: NavHostController) {
         ) {
             RadioButton(
                 selected = radioButton,
-                colors = RadioButtonDefaults.colors( Color(0xFFea7501)),
+                colors = RadioButtonDefaults.colors(Color(0xFFea7501)),
                 onClick = {
                     radioButton = true
                     GlobalData.setAthlete(true)
@@ -133,7 +141,7 @@ fun LoginScreen(navController: NavHostController) {
             )
             RadioButton(
                 selected = !radioButton,
-                colors = RadioButtonDefaults.colors( Color(0xFFea7501)),
+                colors = RadioButtonDefaults.colors(Color(0xFFea7501)),
                 onClick = {
                     radioButton = false
                     GlobalData.setAthlete(false)
@@ -158,10 +166,11 @@ fun LoginScreen(navController: NavHostController) {
             ) {
                 Button(
                     onClick = {
+
                         coroutineScope.launch {
                             body["email"] = email
                             body["password"] = password
-                            UserAuth.setUserAuthorization(true)
+                            openNumbers = true
                             try {
                                 val listResult = MarsApi.retrofitService.postRegister(body)
                                 response.value = listResult.toString()
@@ -246,4 +255,59 @@ fun LoginScreen(navController: NavHostController) {
         )
     }
 
+    if (openNumbers) callNumberFromEmail()
+}
+
+
+@Composable
+fun callNumberFromEmail(): Unit {
+
+    var openDialog by remember { mutableStateOf(true) }
+    val maxChar = 4
+    if (openDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = { },
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextField(
+                        value = EmailDigits.getDigit().toString(),
+                        onValueChange = { if(it.length <= maxChar)EmailDigits.setDigit(it) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(50.dp),
+                        singleLine = true,
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = TextFieldDefaults.textFieldColors(
+                            textColor = Color.Black,
+                            focusedIndicatorColor = Color.Transparent,
+                            cursorColor = Color.Black,
+                            unfocusedIndicatorColor = Color.Transparent
+                        )
+                    )
+
+                }
+            },
+            dismissButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
+                    onClick = {
+                        openDialog = false
+                        UserAuth.setUserAuthorization(true)
+                    }) {
+                    androidx.compose.material.Text(
+                        text = "Подтвердить",
+                        color = Color.White
+                    )
+                }
+
+            }
+        )
+
+    }
 }

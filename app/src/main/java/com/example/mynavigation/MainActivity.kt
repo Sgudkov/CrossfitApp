@@ -15,9 +15,11 @@ import com.example.mynavigation.screens.MainScreen
 import com.example.mynavigation.ui.theme.MyNavigationTheme
 
 class MainActivity : ComponentActivity() {
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MyNavigationTheme {
                 Surface(
@@ -38,3 +40,4 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     MainScreen()
 }
+

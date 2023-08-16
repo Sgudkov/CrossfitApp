@@ -176,9 +176,25 @@ class UserAuthView : ViewModel() {
 
 }
 
+data class EmailDigitsData(var dig: String = "")
+
+class EmailDigitsView : ViewModel(){
+    private var emailDigitsData by mutableStateOf(EmailDigitsData())
+
+    fun setDigit(dig : String) {
+        emailDigitsData = emailDigitsData.copy(dig = dig)
+    }
+
+    fun getDigit() : String {
+        return emailDigitsData.dig
+    }
+
+}
+
 fun showState(message: String, context: android.content.Context) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
 var GlobalData = GlobalDataView()
 var UserAuth = UserAuthView()
+var EmailDigits = EmailDigitsView()
