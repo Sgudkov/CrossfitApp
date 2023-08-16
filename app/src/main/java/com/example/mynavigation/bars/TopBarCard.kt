@@ -73,7 +73,7 @@ fun TopBarCard(
                 }
             }
         },
-        backgroundColor = Color(0xFF000000)
+        backgroundColor = Color(0xFF303233)
     )
 
 }

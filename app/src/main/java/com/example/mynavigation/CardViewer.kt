@@ -3,13 +3,13 @@ package com.example.mynavigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -52,43 +52,61 @@ fun CardViewer(navController: NavHostController, cardName: Int) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                .background(Color.Black)
+                .background(Color(0xFF303233))
                 .verticalScroll(rememberScrollState())
                 .wrapContentSize(Alignment.Center)
                 .clickable { focusManager.clearFocus() },
-                horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            items(1) {
-                lines?.forEach { (key, message) ->
-                    var msg by rememberSaveable { mutableStateOf("") }
-                    if (msg.isEmpty()) msg = message
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ){
-                        Text(
-                            text = key,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            style = TextStyle(fontSize = 18.sp)
-                        )
-                        TextField(
-                            singleLine = true,
-                            value = msg,
-                            onValueChange = {
-                                msg = it
-                                lines!![key] = msg
 
-                            },
-                            colors = TextFieldDefaults.textFieldColors(
-                                textColor = Color.Black,
-                                backgroundColor = Color.White
-                            ),
-                            textStyle = TextStyle(fontSize = 18.sp),
-                        )
+            lines?.forEach { (key, message) ->
+                var msg by rememberSaveable { mutableStateOf("") }
+                if (msg.isEmpty()) msg = message
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, end = 20.dp)
+                        ) {
+                            Text(
+                                text = key,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                style = TextStyle(fontSize = 16.sp),
+                                modifier = Modifier.padding(top = 20.dp)
+                            )
+                            TextField(
+                                modifier = Modifier
+                                    .align(alignment = Alignment.CenterHorizontally)
+                                    .padding(top = 10.dp),
+                                shape = RoundedCornerShape(20.dp),
+                                singleLine = true,
+                                value = msg,
+                                onValueChange = {
+                                    msg = it
+                                    lines!![key] = msg
+
+                                },
+                                colors = TextFieldDefaults.textFieldColors(
+                                    textColor = Color.Black,
+                                    backgroundColor = Color.White,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    cursorColor = Color.Black,
+                                ),
+                                textStyle = TextStyle(fontSize = 18.sp),
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.size(30.dp))
                 }
-//            }
+            }
+
         }
 
     }

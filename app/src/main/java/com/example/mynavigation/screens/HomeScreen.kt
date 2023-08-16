@@ -22,10 +22,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -76,13 +72,11 @@ fun HomeScreen(navController: NavHostController) {
 //                        .weight(1f)
                         .fillMaxWidth()
                         .height(150.dp)
-                        .padding(start = 40.dp, end = 40.dp)
+                        .padding(start = 40.dp, top=10.dp, end = 40.dp)
                 ) {
                     Row(
                         modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
                     ) {
-
-
 
                         Image(
                             painter = painterResource(id = R.drawable.main_frontsquat),
@@ -95,50 +89,8 @@ fun HomeScreen(navController: NavHostController) {
                                 }
                         )
 
-//                        Image(
-//                            painter = painterResource(id = R.drawable.main_frontsquat),
-//                            contentDescription = "",
-//                            contentScale = ContentScale.Crop,
-//                            modifier = Modifier
-//                                .clickable {
-//                                    val task = entry.key
-//                                    navController.navigate(route = "home/$task")
-//                                }
-//                        )
 
                     }
-
-
-//                        Box(
-//                            modifier = Modifier
-//                                .weight(2f)
-//                                .fillMaxSize()
-//                        ) {
-//                            val txt = entry.key
-//                            Text(
-//                                text = "Задание $txt",
-//                                fontWeight = FontWeight.Bold,
-//                                fontSize = 20.sp,
-//                                color = Color.Black,
-//                                modifier = Modifier
-//                                    .padding(bottom = 20.dp)
-//                            )
-//                            Button(
-//                                modifier = Modifier
-//                                    .padding(end = 2.dp),
-//                                onClick = {
-//                                    val task = entry.key
-//                                    navController.navigate(route = "home/$task")
-//                                },
-//                                colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
-//                                border = BorderStroke(0.5.dp, Color(0xFF000000)),
-//                            ) {
-//                                Text(
-//                                    text = "Записать результат",
-//                                    color = Color(0xFFffffff)
-//                                )
-//                            }
-//                        }
 
 
                 }
