@@ -17,7 +17,7 @@ fun BottomBar(navController: NavHostController) {
     val items = listOf(
         NavigationItem.Home,
         NavigationItem.Login,
-        NavigationItem.Detail,
+//        NavigationItem.Detail,
     )
 
     BottomNavigation(backgroundColor = Color(0xFF303233)) {

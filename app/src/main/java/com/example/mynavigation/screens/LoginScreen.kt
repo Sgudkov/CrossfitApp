@@ -191,7 +191,7 @@ fun LoginScreen() {
                         .height(50.dp)
                         .padding(top = 10.dp)
                 ) {
-                    Text(text = "Регистрация")
+                    Text(text = "Регистрация", color = Color.White)
                 }
                 Button(
                     onClick = {
@@ -226,7 +226,7 @@ fun LoginScreen() {
                         .height(50.dp)
                         .padding(top = 10.dp)
                 ) {
-                    Text(text = "Вход")
+                    Text(text = "Вход", color = Color.White)
                 }
             }
         }

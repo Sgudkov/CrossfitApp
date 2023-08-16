@@ -19,7 +19,7 @@ import com.example.mynavigation.screens.LoginScreen
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screens.Home.route,
+        startDestination = Screens.Login.route,
         modifier = Modifier
     )
     {
