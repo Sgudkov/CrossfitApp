@@ -6,5 +6,6 @@ sealed class Screens(val route: String) {
     object Home: Screens("home")
     object Detail: Screens("detail")
     object Card: Screens("home/{task}")
+
 }
 

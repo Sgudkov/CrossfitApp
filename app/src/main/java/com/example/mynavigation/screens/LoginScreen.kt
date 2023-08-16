@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.mynavigation.GlobalData
 import com.example.mynavigation.MarsApi
 import com.example.mynavigation.PreferencesManager
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavHostController) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var radioButton by rememberSaveable { mutableStateOf(false) }
@@ -69,7 +70,8 @@ fun LoginScreen() {
 //    showState("Call after register", context)
 
     if (UserAuth.isAuthorization()) {
-        LoggedScreen()
+        ProfileScreen()
+//        navController.navigate(route = "profile")
         return
     }
 
@@ -183,6 +185,8 @@ fun LoginScreen() {
 
                         preferencesManager.saveData(email, password)
                         data.value = password
+
+
                     },
                     colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
                     shape = RoundedCornerShape(50.dp),

@@ -13,6 +13,7 @@ import com.example.mynavigation.CardViewer
 import com.example.mynavigation.screens.DetailScreen
 import com.example.mynavigation.screens.HomeScreen
 import com.example.mynavigation.screens.LoginScreen
+import com.example.mynavigation.screens.ProfileScreen
 
 
 @Composable
@@ -25,7 +26,7 @@ fun NavGraph(navController: NavHostController) {
     {
 
         composable(route = Screens.Login.route) {
-            LoginScreen()
+            LoginScreen(navController)
         }
 
         composable(route = Screens.Home.route) {
@@ -35,6 +36,7 @@ fun NavGraph(navController: NavHostController) {
         composable(route = Screens.Detail.route) {
             DetailScreen()
         }
+
         composable(
             route = Screens.Card.route,
             arguments = listOf(navArgument("task") { defaultValue = 0 })
