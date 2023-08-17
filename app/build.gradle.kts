@@ -56,7 +56,8 @@ android {
 }
 
 dependencies {
-    val camerax_version = "1.2.2"
+    implementation("androidx.camera:camera-mlkit-vision:1.3.0-beta02")
+    val cameraxVersion = "1.3.0-alpha04"
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -92,14 +93,16 @@ dependencies {
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
-    implementation ("androidx.camera:camera-core:${camerax_version}")
-    implementation ("androidx.camera:camera-camera2:${camerax_version}")
-    implementation ("androidx.camera:camera-lifecycle:${camerax_version}")
-    implementation ("androidx.camera:camera-video:${camerax_version}")
-    implementation ("androidx.camera:camera-view:${camerax_version}")
-    implementation ("androidx.camera:camera-extensions:${camerax_version}")
+    implementation ("androidx.camera:camera-core:${cameraxVersion}")
+    implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation ("androidx.camera:camera-lifecycle:${cameraxVersion}")
+//    implementation ("androidx.camera:camera-video:${camerax_version}")
+    implementation ("androidx.camera:camera-view:${cameraxVersion}")
+    implementation ("androidx.camera:camera-extensions:${cameraxVersion}")
 
     implementation ("com.google.accompanist:accompanist-permissions:0.33.0-alpha")
+    implementation ("androidx.compose.ui:ui-viewbinding:1.5.0")
+    implementation ("com.google.mlkit:barcode-scanning:17.2.0")
 
 
 

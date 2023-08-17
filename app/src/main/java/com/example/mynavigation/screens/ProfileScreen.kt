@@ -1,6 +1,12 @@
 package com.example.mynavigation.screens
 
+import android.util.Log
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -19,12 +25,18 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,16 +63,20 @@ import com.example.mynavigation.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavHostController, profile: Boolean) {
+fun ProfileScreen(navController: NavHostController?, profile: Boolean) {
 
     var name by rememberSaveable { mutableStateOf("") }
     var phone by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var trainer by rememberSaveable { mutableStateOf("") }
+    val trainer by rememberSaveable { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     var cam by remember { mutableStateOf(false) }
 
@@ -71,7 +87,7 @@ fun ProfileScreen(navController: NavHostController, profile: Boolean) {
 
     var openDialog by remember { mutableStateOf(true) }
 
-    if (openDialog) {
+    if (openDialog && !cameraPermissionState.status.isGranted) {
         AlertDialog(
             onDismissRequest = { openDialog = false },
             confirmButton = { },
@@ -96,7 +112,7 @@ fun ProfileScreen(navController: NavHostController, profile: Boolean) {
                 Button(
                     colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
                     onClick = {
-                        if (!cameraPermissionState.status.isGranted){
+                        if (!cameraPermissionState.status.isGranted) {
                             cameraPermissionState.launchPermissionRequest()
                         }
                         openDialog = false
@@ -268,41 +284,161 @@ fun ProfileScreen(navController: NavHostController, profile: Boolean) {
 
     }
 
+    @androidx.camera.core.ExperimentalGetImage
     if (cam) SimpleCameraPreview()
 
 }
 
-
+@androidx.camera.core.ExperimentalGetImage
 @Composable
 fun SimpleCameraPreview() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val cameraProvider = cameraProviderFuture.get()
 
-    AndroidView(
-        factory = { ctx ->
-            val previewView = PreviewView(ctx)
-            val executor = ContextCompat.getMainExecutor(ctx)
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
+    var closeCamera by remember {
+        mutableStateOf(false)
+    }
 
-                val cameraSelector = CameraSelector.Builder()
-                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                    .build()
 
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview
+    if (closeCamera) {
+        ProfileScreen(navController = null, profile = false)
+        return
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(
+                            onClick = {
+                                cameraProvider?.unbindAll()
+                                closeCamera = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                tint = Color.White,
+                                contentDescription = " "
+                            )
+                        }
+                    }
+                },
+                backgroundColor = Color(0xFF303233),
+
+
                 )
-            }, executor)
-            previewView
         },
-        modifier = Modifier.fillMaxSize(),
-    )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            AndroidView(
+                factory = { ctx ->
+                    val previewView = PreviewView(ctx).also {
+                        it.scaleType = PreviewView.ScaleType.FILL_CENTER
+                        it.layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                        it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                    }
+                    val executor = ContextCompat.getMainExecutor(ctx)
+
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+                        .apply {
+                            setAnalyzer(executor, BarcodeAnalyser { barcodeValue  ->
+//                                cameraProvider?.unbindAll()
+//                                closeCamera = true
+                                barcodeValue.forEach{barcode ->
+                                    Toast.makeText(ctx, barcode.rawValue.toString(), Toast.LENGTH_SHORT).show()
+                                }
+
+
+                            })
+                        }
+
+                    val imageCapture = ImageCapture.Builder().build()
+
+                    cameraProviderFuture.addListener({
+
+                        val preview = Preview.Builder().build().also {
+                            it.setSurfaceProvider(previewView.surfaceProvider)
+                        }
+
+                        val cameraSelector = CameraSelector.Builder()
+                            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                            .build()
+
+                        cameraProvider?.unbindAll()
+                        cameraProvider?.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            imageCapture,
+                            imageAnalysis,
+                            preview
+                        )
+                    }, executor)
+                    previewView
+                },
+                modifier = Modifier
+
+
+            )
+        }
+    }
+
+}
+
+@androidx.camera.core.ExperimentalGetImage
+class BarcodeAnalyser(
+//    val callback: (Any?) -> Unit
+    private val onBarcodeDetected: (barcodes: List<Barcode>) -> Unit
+) : ImageAnalysis.Analyzer {
+
+    private var lastAnalyzedTimeStamp = 0L
+    override fun analyze(imageProxy: ImageProxy) {
+        val currentTimestamp = System.currentTimeMillis()
+        if (currentTimestamp - lastAnalyzedTimeStamp >= TimeUnit.SECONDS.toMillis(1)) {
+            val options = BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                .build()
+
+            val scanner = BarcodeScanning.getClient(options)
+            val mediaImage = imageProxy.image
+            if (mediaImage != null) {
+                val image =
+                    InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+
+                scanner.process(image)
+                    .addOnSuccessListener { barcodes ->
+
+                        if (barcodes.size > 0) {
+                            onBarcodeDetected(barcodes)
+                        }
+                    }
+                    .addOnFailureListener {
+
+                    }
+                    .addOnCompleteListener {
+                        imageProxy.close()
+                    }
+            }
+            lastAnalyzedTimeStamp = currentTimestamp
+        } else {
+            imageProxy.close()
+        }
+    }
+
 }
 

@@ -1,10 +1,16 @@
 package com.example.mynavigation
 
+import android.content.Intent
+import android.graphics.Rect
+import android.view.MotionEvent
+import android.view.View
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.google.mlkit.vision.barcode.common.Barcode
 import java.time.LocalDate
 
 //import org.threeten.bp.LocalDate
