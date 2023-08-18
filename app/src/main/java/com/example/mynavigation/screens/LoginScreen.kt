@@ -74,7 +74,7 @@ fun LoginScreen(navController: NavHostController) {
 
 
     if (UserAuth.isAuthorization()) {
-        ProfileScreen(navController, true)
+        ProfileScreen(navController)
         return
     }
 
@@ -253,12 +253,12 @@ fun LoginScreen(navController: NavHostController) {
         )
     }
 
-    if (openNumbers) callNumberFromEmail()
+    if (openNumbers) CallNumberFromEmail()
 }
 
 
 @Composable
-fun callNumberFromEmail(): Unit {
+fun CallNumberFromEmail() {
 
     var openDialog by remember { mutableStateOf(true) }
     val maxChar = 4
@@ -274,8 +274,8 @@ fun callNumberFromEmail(): Unit {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextField(
-                        value = EmailDigits.getDigit().toString(),
-                        onValueChange = { if(it.length <= maxChar)EmailDigits.setDigit(it) },
+                        value = EmailDigits.getDigit(),
+                        onValueChange = { if (it.length <= maxChar) EmailDigits.setDigit(it) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(50.dp),
                         singleLine = true,

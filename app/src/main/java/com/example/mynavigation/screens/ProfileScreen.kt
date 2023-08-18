@@ -1,6 +1,5 @@
 package com.example.mynavigation.screens
 
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
@@ -34,7 +33,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -69,16 +67,15 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.TimeUnit
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ProfileScreen(navController: NavHostController?, profile: Boolean) {
+fun ProfileScreen(navHostController: NavHostController, profile: Boolean = false) {
 
     var name by rememberSaveable { mutableStateOf("") }
     var phone by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     val trainer by rememberSaveable { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    var cam by remember { mutableStateOf(false) }
 
 
     val cameraPermissionState = rememberPermissionState(
@@ -256,7 +253,9 @@ fun ProfileScreen(navController: NavHostController?, profile: Boolean) {
                     if (trainer.isEmpty()) {
                         Button(
                             onClick = {
-                                if (cameraPermissionState.status.isGranted) cam = true
+                                if (cameraPermissionState.status.isGranted) navHostController.navigate(
+                                    "qr"
+                                )
                             },
                             colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
                             shape = RoundedCornerShape(20.dp),
@@ -284,28 +283,15 @@ fun ProfileScreen(navController: NavHostController?, profile: Boolean) {
 
     }
 
-    @androidx.camera.core.ExperimentalGetImage
-    if (cam) SimpleCameraPreview()
-
 }
 
 @androidx.camera.core.ExperimentalGetImage
 @Composable
-fun SimpleCameraPreview() {
+fun SimpleCameraPreview(navHostController: NavHostController) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraProvider = cameraProviderFuture.get()
-
-    var closeCamera by remember {
-        mutableStateOf(false)
-    }
-
-
-    if (closeCamera) {
-        ProfileScreen(navController = null, profile = false)
-        return
-    }
 
     Scaffold(
         topBar = {
@@ -318,7 +304,7 @@ fun SimpleCameraPreview() {
                         IconButton(
                             onClick = {
                                 cameraProvider?.unbindAll()
-                                closeCamera = true
+                                navHostController.navigateUp()
                             }
                         ) {
                             Icon(
@@ -357,11 +343,14 @@ fun SimpleCameraPreview() {
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
                         .apply {
-                            setAnalyzer(executor, BarcodeAnalyser { barcodeValue  ->
+                            setAnalyzer(executor, BarcodeAnalyser { barcodeValue ->
 //                                cameraProvider?.unbindAll()
-//                                closeCamera = true
-                                barcodeValue.forEach{barcode ->
-                                    Toast.makeText(ctx, barcode.rawValue.toString(), Toast.LENGTH_SHORT).show()
+                                barcodeValue.forEach { barcode ->
+                                    Toast.makeText(
+                                        ctx,
+                                        barcode.rawValue.toString(),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
 
 

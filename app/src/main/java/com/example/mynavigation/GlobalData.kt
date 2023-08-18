@@ -1,23 +1,15 @@
 package com.example.mynavigation
 
-import android.content.Intent
-import android.graphics.Rect
-import android.view.MotionEvent
-import android.view.View
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import android.net.Uri
 import androidx.lifecycle.ViewModel
-import com.google.mlkit.vision.barcode.common.Barcode
 import java.time.LocalDate
 
-//import org.threeten.bp.LocalDate
 
 data class DataModel(
     var athlet: Boolean = false, var selectedDate: LocalDate = LocalDate.now(),
-//    var exerciseMap: MutableMap<String, MutableList<String>> = mutableMapOf()
     //Date ->[taskName,[taskDescription, taskComment]]
     var exerciseMap: MutableMap<LocalDate, MutableMap<Int, MutableMap<String, String>>> = mutableMapOf()
 )
@@ -184,14 +176,14 @@ class UserAuthView : ViewModel() {
 
 data class EmailDigitsData(var dig: String = "")
 
-class EmailDigitsView : ViewModel(){
+class EmailDigitsView : ViewModel() {
     private var emailDigitsData by mutableStateOf(EmailDigitsData())
 
-    fun setDigit(dig : String) {
+    fun setDigit(dig: String) {
         emailDigitsData = emailDigitsData.copy(dig = dig)
     }
 
-    fun getDigit() : String {
+    fun getDigit(): String {
         return emailDigitsData.dig
     }
 

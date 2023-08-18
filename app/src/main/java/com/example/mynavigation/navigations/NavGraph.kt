@@ -2,6 +2,8 @@ package com.example.mynavigation.navigations
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -14,9 +16,10 @@ import com.example.mynavigation.screens.DetailScreen
 import com.example.mynavigation.screens.HomeScreen
 import com.example.mynavigation.screens.LoginScreen
 import com.example.mynavigation.screens.ProfileScreen
+import com.example.mynavigation.screens.SimpleCameraPreview
 
 
-@Composable
+@OptIn(ExperimentalGetImage::class) @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
@@ -35,6 +38,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(route = Screens.Detail.route) {
             DetailScreen()
+        }
+
+        composable(route = Screens.QR.route) {
+            SimpleCameraPreview(navController)
         }
 
         composable(
