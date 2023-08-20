@@ -39,8 +39,8 @@ android {
     }
     buildFeatures {
         compose = true
-        viewBinding = true
-        dataBinding = true
+//        viewBinding = true
+//        dataBinding = true
     }
     dataBinding{
         enable = true
@@ -89,11 +89,11 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.3.0")
-    implementation("com.android.tools:desugar_jdk_libs:1.0.9")
+    implementation("com.android.tools:desugar_jdk_libs:2.0.3")
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.1")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
-    implementation ("androidx.camera:camera-core:${cameraxVersion}")
+//    implementation ("androidx.camera:camera-core:${cameraxVersion}")
     implementation ("androidx.camera:camera-camera2:${cameraxVersion}")
     implementation ("androidx.camera:camera-lifecycle:${cameraxVersion}")
 //    implementation ("androidx.camera:camera-video:${camerax_version}")
@@ -101,8 +101,10 @@ dependencies {
     implementation ("androidx.camera:camera-extensions:${cameraxVersion}")
 
     implementation ("com.google.accompanist:accompanist-permissions:0.33.0-alpha")
-    implementation ("androidx.compose.ui:ui-viewbinding:1.5.0")
+//    implementation ("androidx.compose.ui:ui-viewbinding:1.5.0")
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation ("com.google.zxing:core:3.5.1")
+    implementation ("com.journeyapps:zxing-android-embedded:4.1.0")
 
 
 

@@ -164,7 +164,6 @@ fun LoginScreen(navController: NavHostController) {
             ) {
                 Button(
                     onClick = {
-
                         coroutineScope.launch {
                             body["email"] = email
                             body["password"] = password

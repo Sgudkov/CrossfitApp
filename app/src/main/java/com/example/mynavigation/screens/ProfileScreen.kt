@@ -1,8 +1,11 @@
 package com.example.mynavigation.screens
 
+import android.graphics.Bitmap
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
@@ -45,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -56,7 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
+import com.example.mynavigation.GlobalData
 import com.example.mynavigation.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -65,6 +71,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.google.zxing.BarcodeFormat
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -250,7 +258,36 @@ fun ProfileScreen(navHostController: NavHostController, profile: Boolean = false
                     modifier = Modifier.padding(top = 20.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    if (trainer.isEmpty()) {
+
+                    if (GlobalData.getAthlete()) {
+                        if (trainer.isEmpty()) {
+                            Button(
+                                onClick = {
+                                    if (cameraPermissionState.status.isGranted) navHostController.navigate(
+                                        "qr"
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
+                                shape = RoundedCornerShape(20.dp),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            ) {
+                                Text(
+                                    text = "Записаться к тренеру",
+                                    color = Color.White
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = "Ваш тренер: $trainer",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                style = TextStyle(fontSize = 16.sp),
+                                modifier = Modifier.padding(top = 20.dp)
+                            )
+                        }
+
+                    } else {
                         Button(
                             onClick = {
                                 if (cameraPermissionState.status.isGranted) navHostController.navigate(
@@ -263,19 +300,13 @@ fun ProfileScreen(navHostController: NavHostController, profile: Boolean = false
                                 .padding(top = 10.dp)
                         ) {
                             Text(
-                                text = "Записаться к тренеру",
+                                text = "Добавить атлета",
                                 color = Color.White
                             )
                         }
-                    } else {
-                        Text(
-                            text = "Ваш тренер: $trainer",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            style = TextStyle(fontSize = 16.sp),
-                            modifier = Modifier.padding(top = 20.dp)
-                        )
                     }
+
+
                 }
             }
         }
@@ -285,7 +316,7 @@ fun ProfileScreen(navHostController: NavHostController, profile: Boolean = false
 
 }
 
-@androidx.camera.core.ExperimentalGetImage
+@ExperimentalGetImage
 @Composable
 fun SimpleCameraPreview(navHostController: NavHostController) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -327,69 +358,111 @@ fun SimpleCameraPreview(navHostController: NavHostController) {
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
-            AndroidView(
-                factory = { ctx ->
-                    val previewView = PreviewView(ctx).also {
-                        it.scaleType = PreviewView.ScaleType.FILL_CENTER
-                        it.layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                        )
-                        it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                    }
-                    val executor = ContextCompat.getMainExecutor(ctx)
 
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
-                        .apply {
-                            setAnalyzer(executor, BarcodeAnalyser { barcodeValue ->
-//                                cameraProvider?.unbindAll()
-                                barcodeValue.forEach { barcode ->
-                                    Toast.makeText(
-                                        ctx,
-                                        barcode.rawValue.toString(),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+            if (GlobalData.getAthlete()) {
+                ScanQRCode(lifecycleOwner, cameraProvider, cameraProviderFuture)
+            } else {
+                GenerateQRCode()
+            }
 
-
-                            })
-                        }
-
-                    val imageCapture = ImageCapture.Builder().build()
-
-                    cameraProviderFuture.addListener({
-
-                        val preview = Preview.Builder().build().also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
-                        }
-
-                        val cameraSelector = CameraSelector.Builder()
-                            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                            .build()
-
-                        cameraProvider?.unbindAll()
-                        cameraProvider?.bindToLifecycle(
-                            lifecycleOwner,
-                            cameraSelector,
-                            imageCapture,
-                            imageAnalysis,
-                            preview
-                        )
-                    }, executor)
-                    previewView
-                },
-                modifier = Modifier
-
-
-            )
         }
     }
 
 }
 
-@androidx.camera.core.ExperimentalGetImage
+@Composable
+fun GenerateQRCode() {
+    val data = "www.google.com"
+    val size = 800
+    var bitmap: Bitmap? = null
+
+    try {
+        val barcodeEncoder = BarcodeEncoder()
+        bitmap = barcodeEncoder.encodeBitmap(data, BarcodeFormat.QR_CODE, size, size)
+    } catch (e: Exception) {
+        Log.e("TAG", "error")
+    }
+
+    if (bitmap != null) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                bitmap.asImageBitmap(),
+                contentDescription = "content description",
+            )
+        }
+    }
+}
+
+@androidx.annotation.OptIn(ExperimentalGetImage::class)
+@Composable
+fun ScanQRCode(
+    lifecycleOwner: LifecycleOwner, cameraProvider: ProcessCameraProvider,
+    cameraProviderFuture: com.google.common.util.concurrent.ListenableFuture<ProcessCameraProvider>
+) {
+    AndroidView(
+        factory = { ctx ->
+            val previewView = PreviewView(ctx).also {
+                it.scaleType = PreviewView.ScaleType.FILL_CENTER
+                it.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+                it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            }
+            val executor = ContextCompat.getMainExecutor(ctx)
+
+            val imageAnalysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+                .apply {
+                    setAnalyzer(executor, BarcodeAnalyser { barcodeValue ->
+//                                cameraProvider?.unbindAll()
+                        barcodeValue.forEach { barcode ->
+                            Toast.makeText(
+                                ctx,
+                                barcode.rawValue.toString(),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+
+                    })
+                }
+
+            val imageCapture = ImageCapture.Builder().build()
+
+            cameraProviderFuture.addListener({
+
+                val preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
+                }
+
+                val cameraSelector = CameraSelector.Builder()
+                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                    .build()
+
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    cameraSelector,
+                    imageCapture,
+                    imageAnalysis,
+                    preview
+                )
+            }, executor)
+            previewView
+        },
+        modifier = Modifier
+
+
+    )
+}
+
+@ExperimentalGetImage
 class BarcodeAnalyser(
 //    val callback: (Any?) -> Unit
     private val onBarcodeDetected: (barcodes: List<Barcode>) -> Unit
