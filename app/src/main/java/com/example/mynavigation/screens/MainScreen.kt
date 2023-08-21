@@ -13,7 +13,7 @@ import com.example.mynavigation.navigations.NavGraph
 
 @Composable
 fun MainScreen() {
-    GlobalData.initializeData()
+    GlobalData.InitializeData()
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomBar(navController) },

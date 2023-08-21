@@ -1,9 +1,12 @@
 package com.example.mynavigation
 
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import java.time.LocalDate
 
@@ -50,13 +53,18 @@ class GlobalDataView : ViewModel() {
     fun getExercise(): MutableMap<LocalDate, MutableMap<Int, MutableMap<String, String>>> {
         return globalData.exerciseMap
     }
-
-    fun initializeData() {
+@Composable
+    fun InitializeData() {
         if (initializeCalled) return
         initializeCalled = true
         val newTask: MutableMap<Int, MutableMap<String, String>> = mutableMapOf()
         val taskDescription: MutableMap<String, String> = mutableMapOf()
         val localDate = LocalDate.now()
+
+        //Token data
+        val preferencesManager =  PreferencesManager(LocalContext.current)
+        globalLoginData.setToken(preferencesManager.getData("access_token", ""))
+        //Token data
 
         taskDescription["Every 6 MIN x 5 sets"] = ""
         taskDescription["15/12 Calorie Row "] = ""

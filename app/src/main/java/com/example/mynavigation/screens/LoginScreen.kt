@@ -2,6 +2,11 @@ package com.example.mynavigation.screens
 
 import android.app.Activity
 import android.util.Log
+import android.util.Patterns
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +23,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -49,10 +58,12 @@ import com.example.mynavigation.GlobalData
 import com.example.mynavigation.MarsApi
 import com.example.mynavigation.PreferencesManager
 import com.example.mynavigation.UserAuth
+import com.example.mynavigation.UserEmailVerifyModel
 import com.example.mynavigation.globalLoginData
 import com.example.mynavigation.showState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -65,13 +76,10 @@ fun LoginScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
     val body by remember { mutableStateOf(mutableMapOf("email" to "")) }
     val preferencesManager = remember { PreferencesManager(context) }
-    val data = remember { mutableStateOf(preferencesManager.getData(" ", "")) }
+//    val data = remember { mutableStateOf(preferencesManager.getData(" ", "")) }
     var openNumbers by remember { mutableStateOf(false) }
-
-
-
-    body["password"] = ""
-
+    var passError by remember { mutableStateOf(false) }
+    var emailError by remember { mutableStateOf(false) }
 
     if (UserAuth.isAuthorization()) {
         ProfileScreen(navController)
@@ -90,7 +98,12 @@ fun LoginScreen(navController: NavHostController) {
         TextField(
             label = { Text(text = "Эл.Почта") },
             value = email,
-            onValueChange = { email = it },
+            singleLine = true,
+            isError = emailError,
+            onValueChange = {
+                email = it
+                emailError = !Patterns.EMAIL_ADDRESS.matcher(email).matches()
+            },
             shape = RoundedCornerShape(20.dp),
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Color.White,
@@ -103,9 +116,14 @@ fun LoginScreen(navController: NavHostController) {
         TextField(
             label = { Text(text = "Пароль") },
             value = password,
+            singleLine = true,
+            isError = passError,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            onValueChange = { password = it },
+            onValueChange = {
+                passError = password.isEmpty()
+                password = it
+            },
             shape = RoundedCornerShape(20.dp),
             colors = TextFieldDefaults.textFieldColors(
                 textColor = Color.White,
@@ -164,30 +182,58 @@ fun LoginScreen(navController: NavHostController) {
             ) {
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            body["email"] = email
-                            body["password"] = password
-                            openNumbers = true
-                            try {
-                                val listResult = MarsApi.retrofitService.postRegister(body)
-                                response.value = listResult.toString()
-                                if (listResult.raw().code() == 500) {
-                                    Log.e(
-                                        "MYTEST",
-                                        "Register error = ${listResult.raw().message()}"
-                                    )
-                                } else {
-                                    Log.i("MYTEST", "Register success = $response.value")
+                        //Registration
+                        passError = password.isEmpty()
+                        emailError = !Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+                        if (email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email)
+                                .matches() && password.isNotEmpty()
+                        ) {
+                            coroutineScope.launch {
+                                body["email"] = email
+                                body["password"] = password
+                                try {
+                                    val listResult = MarsApi.retrofitService.postRegister(body)
+                                    response.value = listResult.toString()
+                                    if (listResult.raw().code() == 500) {
+                                        showState("Ошибка, попробуйте позже", context)
+                                        Log.e(
+                                            "MYTEST",
+                                            "Register error = ${listResult.raw().message()}"
+                                        )
+                                    } else {
+
+                                        val responseLogin = MarsApi.retrofitService.postLogin(body)
+                                        response.value = responseLogin.accesstoken.toString()
+
+                                        if (response.value.isEmpty()) {
+                                            showState(
+                                                "Что-то пошло не так, попробуйте позже",
+                                                context
+                                            )
+                                        } else {
+                                            preferencesManager.saveData(email, password)
+                                            preferencesManager.saveData(
+                                                "access_token",
+                                                response.value
+                                            )
+                                            globalLoginData.setToken(responseLogin.accesstoken.toString())
+                                            //Open for email code verification
+                                            openNumbers = true
+                                        }
+
+                                        Log.i("MYTEST", "Register success = $response.value")
+                                    }
+
+                                } catch (e: Exception) {
+                                    showState("Ошибка сервера, попробуйте позже", context)
+                                    Log.e("MYTEST", "Register failure = $e.message")
                                 }
 
-                            } catch (e: Exception) {
-                                Log.e("MYTEST", "Register failure = $e.message")
                             }
-
+                        } else {
+                            showState("Заполните обязательные поля", context)
                         }
-
-                        preferencesManager.saveData(email, password)
-                        data.value = password
 
                     },
                     colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
@@ -252,40 +298,125 @@ fun LoginScreen(navController: NavHostController) {
         )
     }
 
-    if (openNumbers) CallNumberFromEmail()
+    if (openNumbers) {
+        openNumbers = callNumberFromEmail(body)
+    }
+
 }
 
 
 @Composable
-fun CallNumberFromEmail() {
+fun callNumberFromEmail(body: Map<String, String>): Boolean {
 
     var openDialog by remember { mutableStateOf(true) }
+    var emailCode by remember { mutableStateOf("") }
+    var emailVerify by remember { mutableStateOf("") }
+    var callProgress by remember { mutableStateOf(false) }
+    var requestVerify by remember { mutableStateOf(false) }
+    var listResult by remember { mutableStateOf(UserEmailVerifyModel("")) }
+    var emailCodeError by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
     val maxChar = 4
     if (openDialog) {
         AlertDialog(
             onDismissRequest = { },
-            confirmButton = { },
             backgroundColor = Color.White,
             shape = RoundedCornerShape(20.dp),
             title = {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
                 ) {
-                    TextField(
-                        value = EmailDigits.getDigit(),
-                        onValueChange = { if (it.length <= maxChar) EmailDigits.setDigit(it) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(50.dp),
-                        singleLine = true,
-                        maxLines = 1,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = TextFieldDefaults.textFieldColors(
-                            textColor = Color.Black,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Black,
-                            unfocusedIndicatorColor = Color.Transparent
+                    if (callProgress) {
+                        Text(
+                            text = "Проверяем код",
+                            color = Color.Black
                         )
+                        Box(modifier = Modifier.padding(15.dp)) {
+                            CustomLinearProgressBar()
+                        }
+                    } else {
+                        Text(
+                            text = "Введите четырехзначный код отправленный на указанный e-mail",
+                            color = Color.Black
+                        )
+                        TextField(
+                            value = emailCode,
+                            onValueChange = {
+                                if (it.length <= maxChar) {
+                                    emailCode = it
+                                    if ((it.length) == maxChar) EmailDigits.setDigit(emailCode)
+                                }
+                                emailCodeError = false
+                            },
+                            modifier = Modifier.weight(1f).padding(10.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            singleLine = true,
+                            isError = emailCodeError,
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = TextFieldDefaults.textFieldColors(
+                                textColor = Color.Black,
+                                focusedIndicatorColor = Color.Transparent,
+                                cursorColor = Color.Black,
+                                unfocusedIndicatorColor = Color.Transparent
+                            )
+                        )
+                    }
+
+
+                }
+
+            },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
+                    onClick = {
+                        callProgress = true
+                        coroutineScope.launch {
+                            try {
+                                listResult = MarsApi.retrofitService.getEmailVerify(body)
+
+                                if (listResult.emailVerify.toString().isEmpty()) {
+                                    showState("Что-то пошло не так, попробуйте позже", context)
+                                    Log.e("MYTEST", "Login error ")
+                                } else {
+                                    emailVerify = listResult.emailVerify.toString()
+                                }
+
+                            } catch (e: Exception) {
+                                emailVerify = "asd"
+                                Log.e("MYTEST", "Login failure = ${e.message}")
+                                showState("Что-то пошло не так, попробуйте позже", context)
+                            }
+                            requestVerify = true
+                            //TODO delete delay
+                            withContext(Dispatchers.IO) {
+                                Thread.sleep(5_000)
+                            }
+
+                            if (listResult.emailVerify.toString() == EmailDigits.getDigit() && EmailDigits.getDigit()
+                                    .isNotEmpty()
+                            ) {
+                                UserAuth.setUserAuthorization(true)
+                                openDialog = false
+                            } else {
+                                emailCodeError = true
+                                callProgress = false
+                                showState("Введенный код неверный", context)
+                            }
+
+                        }
+
+                    }) {
+
+                    androidx.compose.material.Text(
+                        text = "Подтвердить",
+                        color = Color.White
                     )
 
                 }
@@ -295,16 +426,40 @@ fun CallNumberFromEmail() {
                     colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
                     onClick = {
                         openDialog = false
-                        UserAuth.setUserAuthorization(true)
+                        emailCode = ""
+                        EmailDigits.setDigit("")
                     }) {
                     androidx.compose.material.Text(
-                        text = "Подтвердить",
+                        text = "Отменить",
                         color = Color.White
                     )
                 }
 
             }
         )
+
+    }
+
+    return openDialog
+}
+
+
+@Composable
+private fun CustomLinearProgressBar() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(Color(0xFFffffff)),
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .height(25.dp),
+                backgroundColor = Color.LightGray,
+                color = Color(0xFFea7501)
+            )
+        }
 
     }
 }

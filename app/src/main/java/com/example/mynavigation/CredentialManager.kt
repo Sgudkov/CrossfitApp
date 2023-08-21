@@ -12,6 +12,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
@@ -49,6 +50,12 @@ class GlobalLoginData : ViewModel() {
     }
 }
 
+data class UserEmailVerifyModel(
+    @SerializedName("email_verify")
+    var emailVerify: String? = "",
+
+    )
+
 var globalLoginData = GlobalLoginData()
 
 private const val BASE_URL =
@@ -76,8 +83,11 @@ interface MarsApiService {
 
     @POST("login")
     @JvmSuppressWildcards
-    suspend fun postLogin(@Body body: MutableMap<String, String>): UserLoginDetailModel
+    suspend fun postLogin(@Body body: Map<String, String>): UserLoginDetailModel
 
+    @GET("emailverify")
+    @JvmSuppressWildcards
+    suspend fun getEmailVerify(@Body body: Map<String, String>): UserEmailVerifyModel
 }
 
 object MarsApi {
