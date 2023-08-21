@@ -185,7 +185,7 @@ fun LoginScreen(navController: NavHostController) {
                         //Registration
                         passError = password.isEmpty()
                         emailError = !Patterns.EMAIL_ADDRESS.matcher(email).matches()
-
+//                        openNumbers = true
                         if (email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email)
                                 .matches() && password.isNotEmpty()
                         ) {
@@ -310,9 +310,7 @@ fun callNumberFromEmail(body: Map<String, String>): Boolean {
 
     var openDialog by remember { mutableStateOf(true) }
     var emailCode by remember { mutableStateOf("") }
-    var emailVerify by remember { mutableStateOf("") }
     var callProgress by remember { mutableStateOf(false) }
-    var requestVerify by remember { mutableStateOf(false) }
     var listResult by remember { mutableStateOf(UserEmailVerifyModel("")) }
     var emailCodeError by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -358,7 +356,7 @@ fun callNumberFromEmail(body: Map<String, String>): Boolean {
                             singleLine = true,
                             isError = emailCodeError,
                             maxLines = 1,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                             colors = TextFieldDefaults.textFieldColors(
                                 textColor = Color.Black,
                                 focusedIndicatorColor = Color.Transparent,
@@ -379,24 +377,17 @@ fun callNumberFromEmail(body: Map<String, String>): Boolean {
                         callProgress = true
                         coroutineScope.launch {
                             try {
-                                listResult = MarsApi.retrofitService.getEmailVerify(body)
+                                listResult = MarsApi.retrofitService.postEmailVerify(body)
 
                                 if (listResult.emailVerify.toString().isEmpty()) {
                                     showState("Что-то пошло не так, попробуйте позже", context)
                                     Log.e("MYTEST", "Login error ")
-                                } else {
-                                    emailVerify = listResult.emailVerify.toString()
                                 }
 
                             } catch (e: Exception) {
-                                emailVerify = "asd"
                                 Log.e("MYTEST", "Login failure = ${e.message}")
+                                Log.e("MYTEST", "Email string = ${listResult.emailVerify.toString()}")
                                 showState("Что-то пошло не так, попробуйте позже", context)
-                            }
-                            requestVerify = true
-                            //TODO delete delay
-                            withContext(Dispatchers.IO) {
-                                Thread.sleep(5_000)
                             }
 
                             if (listResult.emailVerify.toString() == EmailDigits.getDigit() && EmailDigits.getDigit()
