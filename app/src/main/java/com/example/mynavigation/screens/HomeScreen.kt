@@ -73,7 +73,21 @@ fun HomeScreen(navController: NavHostController) {
                         )
                         Button(
                             onClick = {
-                                navController.navigate(route = "login")
+                                navController.navigate(route = "login"){
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    navController.graph.startDestinationRoute?.let { route ->
+                                        popUpTo(route) {
+                                            saveState = true
+                                        }
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // reselecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when reselecting a previously selected item
+                                    restoreState = true
+                                }
                             },
                             colors = ButtonDefaults.buttonColors(Color(0xFFea7501)),
                             shape = RoundedCornerShape(20.dp),

@@ -3,10 +3,6 @@ package com.example.mynavigation.screens
 import android.app.Activity
 import android.util.Log
 import android.util.Patterns
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +26,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -58,12 +53,9 @@ import com.example.mynavigation.GlobalData
 import com.example.mynavigation.MarsApi
 import com.example.mynavigation.PreferencesManager
 import com.example.mynavigation.UserAuth
-import com.example.mynavigation.UserEmailVerifyModel
 import com.example.mynavigation.globalLoginData
 import com.example.mynavigation.showState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -76,12 +68,11 @@ fun LoginScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
     val body by remember { mutableStateOf(mutableMapOf("email" to "")) }
     val preferencesManager = remember { PreferencesManager(context) }
-//    val data = remember { mutableStateOf(preferencesManager.getData(" ", "")) }
     var openNumbers by remember { mutableStateOf(false) }
     var passError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
 
-    if (UserAuth.isAuthorization()) {
+    if (UserAuth.isAuthentication()) {
         ProfileScreen(navController)
         return
     }
@@ -195,33 +186,18 @@ fun LoginScreen(navController: NavHostController) {
                                 try {
                                     val listResult = MarsApi.retrofitService.postRegister(body)
                                     response.value = listResult.toString()
+
                                     if (listResult.raw().code() == 500) {
-                                        showState("Ошибка, попробуйте позже", context)
+                                        listResult.errorBody()?.string()
+                                            ?.let { showState(it, context) }
                                         Log.e(
                                             "MYTEST",
-                                            "Register error = ${listResult.raw().message()}"
+                                            "Register error = ${listResult.errorBody()?.string()}"
                                         )
-                                    } else {
 
-                                        val responseLogin = MarsApi.retrofitService.postLogin(body)
-                                        response.value = responseLogin.accesstoken.toString()
-
-                                        if (response.value.isEmpty()) {
-                                            showState(
-                                                "Что-то пошло не так, попробуйте позже",
-                                                context
-                                            )
-                                        } else {
-                                            preferencesManager.saveData(email, password)
-                                            preferencesManager.saveData(
-                                                "access_token",
-                                                response.value
-                                            )
-                                            globalLoginData.setToken(responseLogin.accesstoken.toString())
-                                            //Open for email code verification
-                                            openNumbers = true
-                                        }
-
+                                    } else if (listResult.raw().code() == 201){
+                                        //Open for email code verification
+                                        openNumbers = true
                                         Log.i("MYTEST", "Register success = $response.value")
                                     }
 
@@ -254,18 +230,25 @@ fun LoginScreen(navController: NavHostController) {
                                 val listResult = MarsApi.retrofitService.postLogin(body)
                                 response.value = listResult.accesstoken.toString()
                                 if (listResult.accesstoken.toString().isEmpty()) {
-                                    Log.e("MYTEST", "Login error ")
+                                    showState(
+                                        "Что-то пошло не так, попробуйте позже",
+                                        context
+                                    )
                                 } else {
                                     globalLoginData.setToken(listResult.accesstoken.toString())
+                                    preferencesManager.saveData(email, password)
+                                    preferencesManager.saveData(
+                                        "access_token",
+                                        response.value
+                                    )
+                                    UserAuth.setUserAuthentication(true)
                                     Log.i("MYTEST", "Login success = $response.value")
                                     Log.i("MYTEST", "Login token = ${globalLoginData.getToken()}")
                                 }
-
-                                //TODO save to shared Preferance login + token
                             } catch (e: Exception) {
                                 response.value = "Failure: ${e.message}"
                                 Log.e("MYTEST", "Login failure = $response.value")
-                                showState(response.value, context)
+                                showState("Ошибка сервера, попробуйте позже", context)
                             }
                         }
 
@@ -306,12 +289,11 @@ fun LoginScreen(navController: NavHostController) {
 
 
 @Composable
-fun callNumberFromEmail(body: Map<String, String>): Boolean {
+fun callNumberFromEmail(body: MutableMap<String, String>): Boolean {
 
     var openDialog by remember { mutableStateOf(true) }
     var emailCode by remember { mutableStateOf("") }
     var callProgress by remember { mutableStateOf(false) }
-    var listResult by remember { mutableStateOf(UserEmailVerifyModel("")) }
     var emailCodeError by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -347,11 +329,16 @@ fun callNumberFromEmail(body: Map<String, String>): Boolean {
                             onValueChange = {
                                 if (it.length <= maxChar) {
                                     emailCode = it
-                                    if ((it.length) == maxChar) EmailDigits.setDigit(emailCode)
+                                    if ((it.length) == maxChar) {
+                                        EmailDigits.setDigit(emailCode)
+                                        body["email_verify"] = emailCode
+                                    }
                                 }
                                 emailCodeError = false
                             },
-                            modifier = Modifier.weight(1f).padding(10.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(10.dp),
                             shape = RoundedCornerShape(20.dp),
                             singleLine = true,
                             isError = emailCodeError,
@@ -366,7 +353,6 @@ fun callNumberFromEmail(body: Map<String, String>): Boolean {
                         )
                     }
 
-
                 }
 
             },
@@ -377,28 +363,23 @@ fun callNumberFromEmail(body: Map<String, String>): Boolean {
                         callProgress = true
                         coroutineScope.launch {
                             try {
-                                listResult = MarsApi.retrofitService.postEmailVerify(body)
-
-                                if (listResult.emailVerify.toString().isEmpty()) {
-                                    showState("Что-то пошло не так, попробуйте позже", context)
-                                    Log.e("MYTEST", "Login error ")
+                                val listResult = MarsApi.retrofitService.postEmailVerify(body)
+                                if (listResult.raw().code() == 403) {
+                                    emailCodeError = true
+                                    callProgress = false
+                                    openDialog = false
+                                    showState("Введенный код неверный", context)
+                                    Log.e("MYTEST", "Verify Code Error 403")
+                                } else if (listResult.raw().code() == 201) {
+                                    UserAuth.setUserAuthorization(true)
+                                    openDialog = false
+                                    showState("Код подтвержден", context)
                                 }
 
-                            } catch (e: Exception) {
-                                Log.e("MYTEST", "Login failure = ${e.message}")
-                                Log.e("MYTEST", "Email string = ${listResult.emailVerify.toString()}")
-                                showState("Что-то пошло не так, попробуйте позже", context)
-                            }
 
-                            if (listResult.emailVerify.toString() == EmailDigits.getDigit() && EmailDigits.getDigit()
-                                    .isNotEmpty()
-                            ) {
-                                UserAuth.setUserAuthorization(true)
-                                openDialog = false
-                            } else {
-                                emailCodeError = true
-                                callProgress = false
-                                showState("Введенный код неверный", context)
+                            } catch (e: Exception) {
+                                Log.e("MYTEST", "Verify Code Error = ${e.message}")
+                                showState("Что-то пошло не так, попробуйте позже", context)
                             }
 
                         }

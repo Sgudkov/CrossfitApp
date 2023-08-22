@@ -12,8 +12,6 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
@@ -88,7 +86,7 @@ interface MarsApiService {
 
     @POST("emailverify")
     @JvmSuppressWildcards
-    suspend fun postEmailVerify(@Body body: Map<String, String>): UserEmailVerifyModel
+    suspend fun postEmailVerify(@Body body: Map<String, String>): Response<String>
 }
 
 object MarsApi {
