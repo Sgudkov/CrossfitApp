@@ -1,13 +1,17 @@
 package com.example.mynavigation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 
@@ -53,16 +57,16 @@ class GlobalDataView : ViewModel() {
     fun getExercise(): MutableMap<LocalDate, MutableMap<Int, MutableMap<String, String>>> {
         return globalData.exerciseMap
     }
-@Composable
+
+    @Composable
     fun InitializeData() {
         if (initializeCalled) return
         initializeCalled = true
         val newTask: MutableMap<Int, MutableMap<String, String>> = mutableMapOf()
         val taskDescription: MutableMap<String, String> = mutableMapOf()
         val localDate = LocalDate.now()
-
         //Token data
-        val preferencesManager =  PreferencesManager(LocalContext.current)
+        val preferencesManager = PreferencesManager(LocalContext.current)
         globalLoginData.setToken(preferencesManager.getData("access_token", ""))
         //Token data
 
@@ -152,6 +156,28 @@ class GlobalDataView : ViewModel() {
         GlobalData.setExercise(key = localDate, value = newTask)
 
 
+    }
+
+     suspend fun checkAuthentication(): Boolean {
+        val token = "Bearer " + globalLoginData.getToken().toString()
+        Log.e("MYTEST", "Profile Start")
+        try {
+            val listResult = MarsApi.retrofitService.getProfile(token)
+
+            delay(2000)
+
+            if (listResult.raw().code() == 200) {
+                UserAuth.setUserAuthentication(true)
+            } else {
+                UserAuth.setUserAuthentication(false)
+            }
+
+        } catch (e: Exception) {
+            Log.e("MYTEST", "Profile call : ${e.message}")
+            Log.d("MYTEST", "Bearer error: $token")
+            UserAuth.setUserAuthentication(false)
+        }
+         return true
     }
 }
 

@@ -30,6 +30,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,10 @@ import com.example.mynavigation.PreferencesManager
 import com.example.mynavigation.UserAuth
 import com.example.mynavigation.globalLoginData
 import com.example.mynavigation.showState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -71,6 +75,7 @@ fun LoginScreen(navController: NavHostController) {
     var openNumbers by remember { mutableStateOf(false) }
     var passError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
+
 
     if (UserAuth.isAuthentication()) {
         ProfileScreen(navController)
@@ -195,7 +200,7 @@ fun LoginScreen(navController: NavHostController) {
                                             "Register error = ${listResult.errorBody()?.string()}"
                                         )
 
-                                    } else if (listResult.raw().code() == 201){
+                                    } else if (listResult.raw().code() == 201) {
                                         //Open for email code verification
                                         openNumbers = true
                                         Log.i("MYTEST", "Register success = $response.value")
@@ -270,8 +275,10 @@ fun LoginScreen(navController: NavHostController) {
         ClickableText(
             text = AnnotatedString("Забыли пароль?"),
             onClick = {
-                val pref = preferencesManager.getData(email, "")
-                showState("Password = $pref", context)
+
+
+//                val pref = preferencesManager.getData(email, "")
+//                showState("Password = $pref", context)
 
             },
             style = TextStyle(

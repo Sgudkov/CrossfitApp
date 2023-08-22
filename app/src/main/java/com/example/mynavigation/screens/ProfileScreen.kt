@@ -18,6 +18,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -306,7 +307,24 @@ fun ProfileScreen(navHostController: NavHostController, profile: Boolean = false
                         }
                     }
 
-
+                }
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    Button(
+                        onClick = {
+                        },
+                        colors = ButtonDefaults.buttonColors(Color.Red),
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                    ) {
+                        Text(
+                            text = "Выйти из профиля",
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }

@@ -56,7 +56,7 @@ fun HomeScreen(navController: NavHostController) {
                 .wrapContentSize(Alignment.Center)
         ) {
 
-            if (!UserAuth.isAuthorization()) {
+            if (!UserAuth.isAuthentication()) {
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {

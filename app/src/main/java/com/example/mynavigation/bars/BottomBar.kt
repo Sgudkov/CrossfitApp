@@ -27,14 +27,12 @@ fun BottomBar(navController: NavHostController) {
 
             BottomNavigationItem(
                 icon = { Icon(imageVector = item.icon, contentDescription = "") },
-//                label = { Text(text = if(currentRoute == item.route) item.route  else "") },
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White.copy(0.4f),
                 alwaysShowLabel = true,
                 selected = item.route.let {
                     currentRoute?.contains(it, ignoreCase = true) ?: false
                 },
-//                selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route)
                     {

@@ -8,10 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
@@ -87,6 +90,10 @@ interface MarsApiService {
     @POST("emailverify")
     @JvmSuppressWildcards
     suspend fun postEmailVerify(@Body body: Map<String, String>): Response<String>
+
+    @GET("profile")
+    @JvmSuppressWildcards
+    suspend fun getProfile(@Header("Authorization") bearer: String): Response<Any>
 }
 
 object MarsApi {
@@ -95,5 +102,6 @@ object MarsApi {
     }
 
 }
+
 
 
